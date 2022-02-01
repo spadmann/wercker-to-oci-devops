@@ -1,4 +1,4 @@
-# Getting Started with OCI DevOps
+# Getting Started with OCI DevOps. This is the test project for node
 
 This is an example project using Node.js with the Express [getting started generator](https://expressjs.com/en/starter/generator.html). With the [OCI DevOps service](https://www.oracle.com/devops/devops-service/) and this project, you'll be able to build, test and deploy this application to Oracle Container Engine for Kubernetes (OKE).
 
