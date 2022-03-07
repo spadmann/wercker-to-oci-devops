@@ -15,9 +15,9 @@ git clone git@github.com:oracle-quickstart/oci-devops-node
 cd oci-devops-node
 ```
 
-## Install and run the Express example
+## Install and run the Wercker to OCI migration example
 
-Open a terminal and test out the simple Express example - a web app that returns a "Welcome to Express" page
+Open a terminal and test out the simple Wercker to OCI migration example - a web app that returns a "Welcome to Wercker to OCI migration" page
 
 1. Install Node 12 and NPM: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm 
 1. Build the app: `npm install`
@@ -30,14 +30,14 @@ Open a terminal and test out the simple Express example - a web app that returns
 You can locally build a container image using docker (or your favorite container image builder), to verify that you can run the app within a container
 
 ```
-docker build --pull --rm -t node-express-getting-started -f DOCKERFILE .
+docker build --pull --rm -t wercker_to_oci-getting-started -f DOCKERFILE .
 ```
 
 Verify that your image was built, with `docker images` 
 
 Next run your local container and confirm you can access the app running in the container
 ```
-docker run --rm -d -p 3000:3000 --name node-express-getting-started node-express-getting-started:latest
+docker run --rm -d -p 3000:3000 --name wercker_to_oci-getting-started wercker_to_oci-getting-started:latest
 ```
 
 And open your browser to [http://localhost:3000/](http://localhost:3000/)
@@ -65,13 +65,13 @@ Create a new Build Pipeline to build, test and deliver artifacts from a recent c
 In your Build Pipeline, first add a Managed Build stage
 1. The Build Spec File Path is the relative location in your repo of the build_spec.yaml . Leave the default, for this example
 1. For the Primary Code Repository choose your Code Repository you created above
-   - The Name of your Primary Code Repository is used in the build_spec.yaml. In this example, you will need to use the name `node_express` for the build_spec.yaml instructions to acess this source code
+   - The Name of your Primary Code Repository is used in the build_spec.yaml. In this example, you will need to use the name `wercker_to_oci` for the build_spec.yaml instructions to acess this source code
    - Select the `main` branch
 
 ## Create a Container Registry repository
 
-Create a [Container Registry repository](https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrycreatingarepository.htm) for the `node-express-getting-started` container image built in the Managed Build stage. 
-1. You can name the repo: `node-express-getting-started`. So if you create the repository in the Ashburn region, the path is iad.ocir.io/TENANCY-NAMESPACE/node-express-getting-started
+Create a [Container Registry repository](https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrycreatingarepository.htm) for the `wercker_to_oci-getting-started` container image built in the Managed Build stage. 
+1. You can name the repo: `wercker_to_oci-getting-started`. So if you create the repository in the Ashburn region, the path is iad.ocir.io/TENANCY-NAMESPACE/wercker_to_oci-getting-started
 1. Set the repostiory access to public so that you can pull the container image without authorization, from OKE. Under "Actions", choose `Change to public`.
 
 
@@ -80,9 +80,9 @@ Create a [Container Registry repository](https://docs.oracle.com/en-us/iaas/Cont
 The version of the container image that will be delivered to the OCI repository is defined by a [parameter](https://docs.oracle.com/en-us/iaas/Content/devops/using/configuring_parameters.htm) in the Artifact URI that matches a Build Spec exported variable or Build Pipeline parameter name.
 
 Create a DevOps Artifact to point to the Container Registry repository location you just created above. Enter the information for the Artifact location:
-1. Name: node-express-getting-started container
+1. Name: wercker_to_oci-getting-started container
 1. Type: Container image repository
-1. Path: `iad.ocir.io/TENANCY-NAMESPACE/node-express-getting-started`
+1. Path: `iad.ocir.io/TENANCY-NAMESPACE/wercker_to_oci-getting-started`
 1. Replace parameters: Yes
 
 Next, you'll set the container image tag to use the the Managed Build stage `exportedVariables:` name for the version of the container image to deliver in a run of a build pipeline. In the build_spec.yaml for this project, the variable name is: `BUILDRUN_HASH`
@@ -92,21 +92,21 @@ Next, you'll set the container image tag to use the the Managed Build stage `exp
 ```
 
 Edit the DevOps Artifact path to add the tag value as a parameter name.
-1. Path: `iad.ocir.io/TENANCY-NAMESPACE/node-express-getting-started:${BUILDRUN_HASH}`
+1. Path: `iad.ocir.io/TENANCY-NAMESPACE/wercker_to_oci-getting-started:${BUILDRUN_HASH}`
 
 ### Edit your k8s manifest to refer to the container location
 
-Now that you've created a Container Registry repo, edit the [`gettingstarted-manifest.yaml`](gettingstarted-manifest.yaml) image path to match the repo you just created, e.g. `iad.ocir.io/TENANCY-NAMESPACE/node-express-getting-started:${BUILDRUN_HASH}`
+Now that you've created a Container Registry repo, edit the [`gettingstarted-manifest.yaml`](gettingstarted-manifest.yaml) image path to match the repo you just created, e.g. `iad.ocir.io/TENANCY-NAMESPACE/wercker_to_oci-getting-started:${BUILDRUN_HASH}`
 
 ## Add a Deliver Artifacts stage
 
-Let's add a **Deliver Artifacts** stage to your Build Pipeline to deliver the `node-express-getting-started` container to an OCI repository. 
+Let's add a **Deliver Artifacts** stage to your Build Pipeline to deliver the `wercker_to_oci-getting-started` container to an OCI repository. 
 
 The Deliver Artifacts stage **maps** the ouput Artifacts from the Managed Build stage with the version to deliver to a DevOps Artifact resource, and then to the OCI repository.
 
 Add a **Deliver Artifacts** stage to your Build Pipeline after the **Managed Build** stage. To configure this stage:
 1. In your Deliver Artifacts stage, choose `Select Artifact` 
-1. From the list of artifacts select the `node-express-getting-started container` artifact that you created above
+1. From the list of artifacts select the `wercker_to_oci-getting-started container` artifact that you created above
 1. In the next section, you'll assign the  container image outputArtifact from the `build_spec.yaml` to the DevOps project artifact. For the "Build config/result Artifact name" enter: `output01`
 
 
