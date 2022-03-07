@@ -16,7 +16,14 @@ env:
   # exportedVariables are made available to use as parameters in sucessor Build Pipeline stages
   # For this Build to run, the Build Pipeline needs to have a BUILDRUN_HASH parameter set
   exportedVariables:
+    - DOCKER_USERNAME
+    - USER_AUTH_TOKEN
     - BUILDRUN_HASH
+
+    #  - DOCKER_REGISTRY_AUTH
+    - TRIGGER_SOURCE_BRANCH_NAME
+    - TRIGGER_COMMIT_HASH
+    - DOCKER_REPO
 
 steps:
   - type: Command
@@ -60,6 +67,18 @@ steps:
           echo "Failure successfully handled"
         timeoutInSeconds: 40
         runAs: root
+  
+  - type: Command
+    name: "Export Variables"
+    timeoutInSeconds: 10
+    command: |
+      export DOCKER_USERNAME=${gDOCKER_USERNAME}
+      export USER_AUTH_TOKEN=${gUSER_AUTH_TOKEN}
+      #export DOCKER_REGISTRY_AUTH=`echo "${gDOCKER_USERNAME}:${gUSER_AUTH_TOKEN}" | base64|xargs`
+      export TRIGGER_SOURCE_BRANCH_NAME=$OCI_TRIGGER_SOURCE_BRANCH_NAME
+      export TRIGGER_COMMIT_HASH=$OCI_TRIGGER_COMMIT_HASH
+      export DOCKER_REPO=${gDOCKER_REPO}
+      echo "DockerRepo " $DOCKER_REPO "BUILDRUN_HASH: " $BUILDRUN_HASH
 
   - type: Command
     timeoutInSeconds: 1200
